@@ -1,1 +1,11 @@
-import(data.table)
+export(LearnerRegrGRF)
+
+import(R6, R6Class)
+import(mlr3)
+import(mlr3misc)
+import(paradox)
+import(SpatialML)
+
+importFrom(stats, setNames)
+importFrom(stats, predict)
+importFrom(stats, formula)
