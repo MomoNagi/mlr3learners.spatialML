@@ -1,0 +1,3 @@
+Package: mlr3learners.spatialML
+Type: Package
+Title: Geographically Weighted Random Forest Learner
