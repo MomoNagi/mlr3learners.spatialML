@@ -1,29 +1,21 @@
 library(testthat)
 library(mlr3)
-library(mlr3spatial)
-library(data.table)
+library(mlr3spatiotempcv)
 
 test_that("testing regr.grf", {
     set.seed(1)
+  
+    task_data <- mlr3::tsk("california_housing")$data()
+    task_data <- task_data[complete.cases(task_data), ][1:100,]
+    task_data$ocean_proximity <- NULL
 
-    n <- 50
-    task_dt <- data.table(
-        y = rnorm(n),
-        X = runif(n),
-        coord_x = runif(n, -5, 5),
-        coord_y = runif(n, 40, 50)
-    )
-
-    task <- TaskRegr$new(id = "test", backend = task_dt, target = "y")
-
-    task$col_roles$feature <- "X"
-    task$col_roles$coordinate <- c("coord_x", "coord_y")
+    task <- as_task_regr_st(task_data, target = "median_house_value", coordinate_names = c("longitude", "latitude"))
 
     learner <- lrn("regr.grf", bw = 20, ntree = 10)
-    expect_error(learner$train(task), NA)
-    
+
+    learner$train(task)
     pred <- learner$predict(task)
 
-    expect_numeric(pred$response, len = n, any.missing = FALSE)
-
+    expect_true(is.numeric(pred$response))
+    expect_equal(length(pred$response), nrow(task_data))
 })
