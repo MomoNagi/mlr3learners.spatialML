@@ -15,4 +15,5 @@ URL: https://github.com/MomoNagi/-mlr3learners.spatialML
 BugReports: https://github.com/MomoNagi/mlr3learners.spatialML/issues
 Imports: mlr3, mlr3misc, paradox, R6, SpatialML
 Suggests: data.table, testthat, mlr3spatiotempcv
+Remotes: cran/SpatialML
 RoxygenNote: 7.3.3
