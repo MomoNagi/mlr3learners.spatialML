@@ -2,16 +2,17 @@ Package: mlr3learners.spatialML
 Type: Package
 Encoding: UTF-8
 Title: Geographically Weighted Random Forest Learner
+Version: 2026.3.30
 Authors@R: c(
- person(given = c("Manh", "Hung"),
-        family = "LE",
-        role = c("aut", "cre"),
-        email = "lemanhhung230203@gmail.com")
- )
-
+  person(given = c("Manh", "Hung"),
+         family = "LE",
+         role = c("aut", "cre"),
+         email = "lemanhhung230203@gmail.com")
+  )
 Description: Implementation of the Geographically Weighted Random Forest (GRF) learner into mlr3 framework.
 License: GPL-3
 URL: https://github.com/MomoNagi/-mlr3learners.spatialML
 BugReports: https://github.com/MomoNagi/mlr3learners.spatialML/issues
-Imports: data.table, mlr3, mlr3misc, mlr3spatiotempcv, paradox, R6, SpatialML
-Suggests: testthat
+Imports: mlr3, mlr3misc, paradox, R6, SpatialML
+Suggests: data.table, testthat, mlr3spatiotempcv
+RoxygenNote: 7.3.3
