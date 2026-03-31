@@ -14,5 +14,19 @@ devtools::install_github("MomoNagi/mlr3learners.spatialML")
 ```
 
 ## Usage
+This package provides the regr.grf learner for mlr3. It requires a TaskRegrST (spatiotemporal task) from the mlr3spatiotempcv package to access coordinates x,y.
 
-TBD
+```r
+library(mlr3)
+library(mlr3spatiotempcv)
+library(mlr3learners.spatialML)
+
+learner <- lrn("regr.grf", bw = 20, ntree = 10)
+learner$train(task)
+pred <- learner$predict(task)
+```
+
+## Related work
+
+* [Course wiki](https://github.com/tdhock/2026-01-aa-grande-echelle/wiki/projets)
+* [SpatialML package](https://cran.r-project.org/package=SpatialML)
