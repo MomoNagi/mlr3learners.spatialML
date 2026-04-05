@@ -75,10 +75,3 @@ bench_result <- mlr3batchmark::reduceResultsBatchmark(ids, reg = reg)
 saveRDS(bench_result, "bench_result.rds")
 score_dt <- bench_result$score(list(mlr3::msr("regr.rmse"), mlr3::msr("regr.rsq")))
 data.table::fwrite(score_dt, "bench_scores.csv")
-
-results_dt <- results_dt[, .(
-  dataset = task_id,
-  algorithm = learner_id,
-  fold = iteration,
-  rmse = regr.rmse
-)]
