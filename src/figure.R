@@ -11,6 +11,9 @@ results_dt[, rmse := regr.rmse]
 algo_order <- results_dt[, .(m = mean(rmse)), by = algorithm][order(-m), algorithm]
 results_dt[, algorithm := factor(algorithm, levels = algo_order)]
 
+# Inversement de l'ordre pour avoir Income au dessus
+results_dt[, dataset := factor(dataset, levels = c("Income", "California_Housing"))]
+
 # Affichage
 plot1 <- ggplot(results_dt, aes(x = rmse, y = algorithm)) +
   geom_point(

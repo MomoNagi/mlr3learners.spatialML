@@ -17,7 +17,7 @@ set.seed(1)
 task_data <- task_data[sample(.N, 200), ]
 task_data$ocean_proximity <- NULL
 
-task_california <- as_task_regr_st(task_data, target = "median_house_value", coordinate_names = c("longitude", "latitude"))
+task_california <- as_task_regr_st(task_data, target = "median_house_value", coordinate_names = c("longitude", "latitude"), id = "California_Housing")
 
 data(Income, package = "SpatialML")
 income_df <- as.data.frame(Income)
@@ -73,5 +73,7 @@ table(jobs.after$error)
 ids <- jobs.after[is.na(error), job.id]
 bench_result <- mlr3batchmark::reduceResultsBatchmark(ids, reg = reg)
 saveRDS(bench_result, "bench_result.rds")
-score_dt <- bench_result$score(list(mlr3::msr("regr.rmse"), mlr3::msr("regr.rsq")))
-data.table::fwrite(score_dt, "bench_scores.csv")
+score_dt <- bench_result$score(mlr3::msr("regr.rmse"))
+colonnes <- c("task_id", "learner_id", "iteration", "regr.rmse")
+score_dt_final <- score_dt[, ..colonnes]
+data.table::fwrite(score_dt_final, "bench_scores.csv")
