@@ -2,7 +2,7 @@ Package: mlr3learners.spatialML
 Type: Package
 Encoding: UTF-8
 Title: Geographically Weighted Random Forest Learner
-Version: 2026.3.30
+Version: 2026.4.06
 Authors@R: c(
   person(given = "Manh Hung",
          family = "LE",
@@ -20,6 +20,8 @@ Suggests:
     mlr3spatiotempcv,
     mlr3learners,
     mlr3tuning,
+    kknn,
+    glmnet,
     ggplot2,
     future,
     knitr,
