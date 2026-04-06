@@ -1,0 +1,38 @@
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+name: build-pkgdown
+
+jobs:
+  build-book:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup r2u
+        uses: eddelbuettel/github-actions/r2u-setup@master
+      
+      - run: /usr/bin/sudo DEBIAN_FRONTEND=noninteractive apt install tidy texlive texlive-fonts-extra texlive-extra-utils language-pack-fr r-recommended -y
+
+      - name: Install package
+        run: R CMD build . && R CMD INSTALL *.tar.gz
+      
+      - name: Render site
+        run: R --no-save < render.R
+
+      - name: netlify deploy
+        uses: animint/animint-actions/netlify-deploy-comment@main
+        with:
+          netlify_auth_token: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          netlify_site_id: ${{ secrets.NETLIFY_SITE_ID }}
+          pat_github_pr: ${{ secrets.PAT_GITHUB_PR }}
+          path: docs
+          netlify_url: mlr3learners-grf.netlify.app
