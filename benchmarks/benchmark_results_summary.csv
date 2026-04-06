@@ -1,0 +1,9 @@
+"task_id","learner_id","mean_mse"
+"California_Housing","cv_glmnet",6682916275.75124
+"California_Housing","knn.tuned",7903734808.73099
+"California_Housing","GRF",8458356119.77274
+"California_Housing","featureless",15192073980.5532
+"Income","knn.tuned",2724497.19193133
+"Income","GRF",3170128.01405204
+"Income","cv_glmnet",3866105.5939878
+"Income","featureless",8738537.32782015
