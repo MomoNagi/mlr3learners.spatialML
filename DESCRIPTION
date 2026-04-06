@@ -10,7 +10,7 @@ Authors@R: c(
          email = "lemanhhung230203@gmail.com")
   )
 Description: Implementation of the Geographically Weighted Random Forest (GRF) learner into mlr3 framework.
-License: GPL-3
+License: MIT + file LICENSE
 URL: https://github.com/MomoNagi/mlr3learners.spatialML
 BugReports: https://github.com/MomoNagi/mlr3learners.spatialML/issues
 Imports: mlr3, mlr3misc, paradox, R6, SpatialML
