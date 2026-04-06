@@ -23,7 +23,9 @@ jobs:
       - run: /usr/bin/sudo DEBIAN_FRONTEND=noninteractive apt install tidy texlive texlive-fonts-extra texlive-extra-utils language-pack-fr r-recommended -y
 
       - name: Install package
-        run: R CMD build . && R CMD INSTALL *.tar.gz
+        run: |
+          Rscript -e 'install.packages("knitr")'
+          R CMD build . && R CMD INSTALL *.tar.gz
       
       - name: Render site
         run: R --no-save < render.R
