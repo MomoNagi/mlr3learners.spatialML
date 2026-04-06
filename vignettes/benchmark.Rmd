@@ -1,19 +1,178 @@
 ---
-title: "benchmark"
+title: "Benchmark analysis for Spatial GRF"
+author: "Manh Hung LE"
+date: 2026-04-06
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{benchmark}
+  %\VignetteIndexEntry{Benchmark analysis for Spatial GRF}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r, include = FALSE}
+```{r setup_vignette, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 5
 )
 ```
 
-```{r setup}
+# Introduction
+
+This vignette presents a benchmark of the LearnerRegrGRF (Geographical Weighted Random Forest) against standard regression models (such as Featureless, CV_Glmnet and KNN).
+We evaluate the models using two datasets with spatial coordinates to evaluate our learner.
+
+# Setup and datasets
+
+We are using California Housing (subsampled to 200 points) and Income for our two datasets with spatial coordinates.
+The mlr3spatiotempcv package is also used to define these as Spatio-Temporal regression tasks.  
+
+```{r setup_data, message = FALSE, warning = FALSE}
+library(mlr3)
+library(mlr3spatiotempcv)
+library(mlr3learners)
+library(mlr3tuning)
+library(SpatialML)
 library(mlr3learners.spatialML)
+library(data.table)
+library(ggplot2)
+library(future)
+
+task_list <- list()
+sample_size_california <- 200
+seed_value <- 1
+
+# California Housing Task
+california_dt <- mlr3::tsk("california_housing")$data()
+california_dt <- california_dt[complete.cases(california_dt), ]
+
+set.seed(seed_value)
+
+california_dt <- california_dt[sample(.N, sample_size_california), ]
+california_dt$ocean_proximity <- NULL
+
+task_list[["California"]] <- as_task_regr_st(
+  california_dt,
+  target = "median_house_value",
+  coordinate_names = c("longitude", "latitude"),
+  id = "California_Housing"
+)
+
+# Income Task
+data(Income, package = "SpatialML")
+income_df <- as.data.frame(Income)
+
+task_list[["Income"]] <- as_task_regr_st(
+  income_df,
+  target = "Income01",
+  coordinate_names = c("X", "Y"),
+  id = "Income"
+)
 ```
+
+# Learners Configuration
+
+As mentionned before, we are comparing four learners: our GRF, a Featureless model, a Linear Model (CV_Glmnet) and a tuned KNN.
+
+```{r setup_learners}
+grf_bw <- 20
+grf_ntree <- 50
+
+# Learners definition
+grf_lrn <- lrn("regr.grf", bw = grf_bw, ntree = grf_ntree, id = "GRF")
+featureless_lrn <- lrn("regr.featureless", id = "featureless")
+cv_glmnet_lrn <- lrn("regr.cv_glmnet", id = "cv_glmnet")
+
+knn_lrn <- lrn("regr.kknn", id = "knn")
+knn_lrn$param_set$values$k <- paradox::to_tune(1, 30)
+kfoldcv <- mlr3::rsmp("cv")
+kfoldcv$param_set$values$folds <- 3
+
+knn_tuned_lrn <- mlr3tuning::auto_tuner(
+  learner = knn_lrn,
+  tuner = mlr3tuning::tnr("grid_search"),
+  resampling = kfoldcv,
+  measure = mlr3::msr("regr.rmse")
+)
+
+learners <- list(
+  grf_lrn, 
+  featureless_lrn, 
+  knn_tuned_lrn, 
+  cv_glmnet_lrn
+)
+
+```
+
+# Benchmark
+
+To evaluate the performance, we run the benchmark locally using the future package for parallel processing.
+This allows us to execute the 5-fold cross-validation across all learners and tasks efficiently.
+
+```{r setup_benchmark, message = TRUE, warning = FALSE}
+library(future)
+
+cv <- mlr3::rsmp("cv", folds = 5)
+bench_grid <- mlr3::benchmark_grid(
+  tasks = task_list, 
+  learners = learners, 
+  resampling = cv
+)
+
+if(require(future)) {
+  plan("multisession", workers = 4)
+}
+bench_results <- suppressWarnings(
+  mlr3::benchmark(bench_grid, store_models = FALSE)
+)
+
+scores_dt <- bench_results$score(mlr3::msr("regr.rmse"))
+rm(bench_results)
+```
+
+# Results Visualization 
+We visualize the Root Mean Squared Error (RMSE) to compare the performance of our learners.
+A lower RMSE indicates a better fit to the spatial data.
+
+```{r setup_results}
+
+results_dt <- as.data.table(scores_dt)
+
+results_dt[, algorithm := gsub("regr.", "", learner_id, fixed = TRUE)]
+results_dt[, dataset := task_id]
+results_dt[, rmse := regr.rmse]
+
+algo_order <- results_dt[, .(m = mean(rmse)), by = algorithm][order(-m), algorithm]
+results_dt[, algorithm := factor(algorithm, levels = algo_order)]
+
+results_dt[, dataset := factor(dataset, levels = c("Income", "California_Housing"))]
+
+ggplot(results_dt, aes(x = rmse, y = algorithm)) +
+  geom_point(
+    shape = 21,
+    size = 2,
+    fill = "white",
+    color = "black",
+    stroke = 1
+  ) +
+  labs(
+    x = "RMSE",
+    y = "Algorithm"
+  )
+
+ggplot(results_dt,  aes(x = rmse, y = algorithm)) +
+    geom_point(
+    shape = 21,
+    size = 2,
+    fill = "white",
+    color = "black",
+    stroke = 1
+  ) +
+  facet_grid(dataset ~ .) +
+  labs(
+    x = "RMSE",
+    y = "Algorithm"
+  )
+```
+
