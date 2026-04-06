@@ -8,13 +8,13 @@ results_dt[, dataset := task_id]
 results_dt[, rmse := regr.rmse]
 
 # On ordonne les algorithmes par performance moyenne décroissante
-algo_order <- results_dt[, .(m = mean(rmse)), by = algorithm][order(-m), algorithm]
-results_dt[, algorithm := factor(algorithm, levels = algo_order)]
+algo_performance_order <- results_dt[, .(m = mean(rmse)), by = algorithm][order(-m), algorithm]
+results_dt[, algorithm := factor(algorithm, levels = algo_performance_order)]
 
 # Inversement de l'ordre pour avoir Income au dessus
 results_dt[, dataset := factor(dataset, levels = c("Income", "California_Housing"))]
 
-# Affichage
+# Affichage
 plot1 <- ggplot(results_dt, aes(x = rmse, y = algorithm)) +
   geom_point(
     shape = 21,
@@ -23,9 +23,10 @@ plot1 <- ggplot(results_dt, aes(x = rmse, y = algorithm)) +
     color = "black",
     stroke = 1
   ) +
-  labs(x = "RMSE", y = "learner_id")
-
-ggsave("graphique1.png", plot1, width = 8, height = 6)
+  labs(
+    x = "RMSE",
+    y = "Algorithm"
+  )
 
 plot2 <- ggplot(results_dt,  aes(x = rmse, y = algorithm)) +
     geom_point(
@@ -36,6 +37,10 @@ plot2 <- ggplot(results_dt,  aes(x = rmse, y = algorithm)) +
     stroke = 1
   ) +
   facet_grid(dataset ~ .) +
-  labs(x = "RMSE", y = "learner_id")
+  labs(
+    x = "RMSE",
+    y = "Algorithm"
+  )
 
+ggsave("graphique1.png", plot1, width = 8, height = 6)
 ggsave("graphique2.png", plot2, width = 8, height = 6)
