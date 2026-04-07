@@ -4,7 +4,7 @@
 [![test-coverage](https://github.com/MomoNagi/mlr3learners.spatialML/actions/workflows/test-coverage.yaml/badge.svg)](https://github.com/MomoNagi/mlr3learners.spatialML/actions/workflows/test-coverage.yaml)
 [![codecov](https://codecov.io/gh/MomoNagi/mlr3learners.spatialML/graph/badge.svg?token=NTMNXVKQ9J)](https://codecov.io/gh/MomoNagi/mlr3learners.spatialML)
 [![pkgdown](https://github.com/MomoNagi/mlr3learners.spatialML/actions/workflows/pkgdown.yml/badge.svg)](https://github.com/MomoNagi/mlr3learners.spatialML/actions/workflows/pkgdown.yml)
-[![Netlify Status](https://api.netlify.com/api/v1/badges/57b9cfe0-5ad6-4579-abb4-11d0c2df9825/deploy-status)](https://mlr3learners-spatialml-grf.netlify.app/)
+[![Netlify Status](https://api.netlify.com/api/v1/badges/cd1115b8-19e5-4ca8-a132-2496b3a45c65/deploy-status)](https://mlr3learners-spatialml-grf.netlify.app/)
 
 This R package provides an interface to the `spatialML` package for the `mlr3` ecosystem.
 
