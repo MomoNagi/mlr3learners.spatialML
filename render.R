@@ -3,6 +3,8 @@ ins.mat <- installed.packages()
 missing.pkgs <- setdiff(pkgs, rownames(ins.mat))
 install.packages(missing.pkgs)
 
+pkgdown::clean_site(force = TRUE)
+
 out <- capture.output(te <- try(pkgdown::build_site()))
 print(te)
 cat(out, sep="\n")
