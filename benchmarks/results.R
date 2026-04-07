@@ -9,9 +9,10 @@ results_dt[, rmse := regr.rmse]
 
 # exporting csv
 export_csv <- results_dt[, .(
-  mean_mse = mean(rmse^2)
+  mean_rmse = mean(regr.rmse),
+  sd_rmse = sd(regr.rmse)
 ), by = .(task_id, learner_id)]
 
-export_csv <- export_csv[order(task_id, mean_mse)]
+export_csv <- export_csv[order(task_id, mean_rmse)]
 
 write.csv(export_csv, "benchmark_results_summary.csv", row.names = FALSE)
