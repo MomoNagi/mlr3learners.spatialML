@@ -18,8 +18,7 @@ Imports:
     mlr3misc,
     paradox, 
     R6,
-    SpatialML,
-    data.table
+    SpatialML
 Suggests: 
     testthat,
     mlr3spatiotempcv,
@@ -30,7 +29,8 @@ Suggests:
     ggplot2,
     future,
     knitr,
-    rmarkdown
+    rmarkdown,
+    data.table
 Remotes: cran/SpatialML
 RoxygenNote: 7.3.3
 VignetteBuilder: knitr
