@@ -12,7 +12,7 @@ It implements the Geographically Weighted Random Forest (GRF) algorithm for regr
 
 ## Documentation
 
-The site can be found at : https://mlr3learners-grf.netlify.app/
+The site can be found at : https://mlr3learners-spatialml-grf.netlify.app/
 
 This site includes API references, usage guides and a detailed performance benchmark (vignettes).
 
@@ -21,10 +21,11 @@ This site includes API references, usage guides and a detailed performance bench
 To install it, you can use this command :
 
 ```r
-# Installing SpatialML
-install.packages("https://cran.r-project.org/src/contrib/Archive/SpatialML/SpatialML_0.1.6.tar.gz", repos = NULL, type = "source")
-
 # install.packages("remotes")
+
+# Installing SpatialML
+remotes::install_version("SpatialML", version = "0.1.6")
+
 remotes::install_github("MomoNagi/mlr3learners.spatialML")
 ```
 
