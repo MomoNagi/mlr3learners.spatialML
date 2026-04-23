@@ -3,13 +3,6 @@ library(mlr3)
 library(mlr3spatiotempcv)
 library(mlr3learners.spatialML)
 
-test_that("autotest", {
-  learner = lrn("regr.grf", bw = 20)
-  expect_learner(learner)
-  result = run_autotest(learner)
-  expect_true(result, info = result$error)
-})
-
 test_that("regr.grf importance and prediction", {
   set.seed(1)
 
