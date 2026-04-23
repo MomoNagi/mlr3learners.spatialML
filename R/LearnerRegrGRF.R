@@ -111,5 +111,3 @@ LearnerRegrGRF = R6Class("LearnerRegrGRF",
     }
   )
 )
-
-extralrns_dict$add("regr.grf", LearnerRegrGRF)
