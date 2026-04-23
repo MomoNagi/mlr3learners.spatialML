@@ -1,1 +1,6 @@
 ^\.github$
+^benchmarks$
+^render\.R$
+^LICENSE\.md$
+^mlr3learners\.spatialML.*\.tar\.gz$
+^mlr3learners\.spatialML\.Rcheck$

@@ -169,7 +169,7 @@ ggplot(results_dt,  aes(x = rmse, y = algorithm)) +
     color = "black",
     stroke = 1
   ) +
-  facet_grid(dataset ~ .) +
+  facet_grid(. ~ dataset, scales = "free") +
   labs(
     x = "RMSE",
     y = "Algorithm"
