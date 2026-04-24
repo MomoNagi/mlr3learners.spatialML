@@ -22,6 +22,8 @@ set.seed(seed_value)
 california_dt <- california_dt[sample(.N, sample_size_california), ]
 california_dt$ocean_proximity <- NULL
 
+california_dt$median_house_value <- scale(california_dt$median_house_value)[, 1]
+
 # Spatio-Temp Regression task
 task_list[["California"]] <- as_task_regr_st(
   california_dt,
@@ -33,6 +35,7 @@ task_list[["California"]] <- as_task_regr_st(
 # Data Prep : Income
 data(Income, package = "SpatialML")
 income_df <- as.data.frame(Income)
+income_df$Income01 <- scale(income_df$Income01)[, 1]
 
 # Spatio-Temp Regression task
 task_list[["Income"]] <- as_task_regr_st(
@@ -64,7 +67,6 @@ knn_tuned_lrn <- mlr3tuning::auto_tuner(
 )
 
 # Learners list 
-
 learners <- list(
   grf_lrn, 
   featureless_lrn, 
@@ -79,39 +81,27 @@ bench_grid <- mlr3::benchmark_grid(
   learners = learners, 
   resampling = cv
 )
-# Config batchtools for SLURM
-registry_dir <- "dossier_registry"
-if (dir.exists(registry_dir)) {
-  unlink(registry_dir, recursive = TRUE)
-}
 
-# Create + add benchmark tasks to registry
-reg <- batchtools::makeExperimentRegistry(registry_dir)
-mlr3batchmark::batchmark(
-  bench_grid,
-  store_models = FALSE,
-  reg=reg
-)
+bench_results <- mlr3::benchmark(bench_grid, store_models = FALSE)
 
-job.table <- batchtools::getJobTable(reg=reg)
-chunks <- data.frame(job.table, chunk=1)
-batchtools::submitJobs(chunks, resources=list(
-  walltime = 5*60*60, #seconds
-  memory = 8000, #megabytes per cpu
-  ncpus=1,
-  ntasks=1,
-  chunks.as.arrayjobs=TRUE), reg=reg)
+results_dt <- bench_results$score(mlr3::msr("regr.rmse"))[, let(
+  algorithm = gsub("regr.", "", learner_id, fixed = TRUE),
+  dataset = task_id,
+  rmse = regr.rmse)]
 
-# Results retrieval
-jobs.after <- batchtools::getJobTable(reg=reg)
-ids <- jobs.after[is.na(error), job.id]
-bench_results <- mlr3batchmark::reduceResultsBatchmark(ids, reg = reg)
-saveRDS(bench_results, "bench_result.rds")
-
-# Compute RMSE scores
-score_dt <- bench_results$score(mlr3::msr("regr.rmse"))
-cols_to_keep <- c("task_id", "learner_id", "iteration", "regr.rmse")
-score_dt_final <- score_dt[, ..cols_to_keep]
-
-# Export .csv
-data.table::fwrite(score_dt_final, "bench_scores.csv")
+algo_order <- results_dt[, .(m = mean(rmse)), by = algorithm][order(-m), algorithm]
+results_dt[, algorithm := factor(algorithm, levels = algo_order)]
+results_dt[, dataset := factor(dataset, levels = c("Income", "California_Housing"))]
+ggplot(results_dt, aes(x = rmse, y = algorithm)) +
+  geom_point(
+    shape = 21,
+    size = 2,
+    fill = "white",
+    color = "black",
+    stroke = 1
+  ) +
+  facet_grid(. ~ dataset, scales = "free") +
+  labs(
+    x = "RMSE",
+    y = "Algorithm"
+  )

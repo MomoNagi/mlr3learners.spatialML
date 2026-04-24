@@ -51,6 +51,7 @@ set.seed(seed_value)
 
 california_dt <- california_dt[sample(.N, sample_size_california), ]
 california_dt$ocean_proximity <- NULL
+california_dt$median_house_value <- scale(california_dt$median_house_value)[, 1]
 
 task_list[["California"]] <- as_task_regr_st(
   california_dt,
@@ -62,6 +63,7 @@ task_list[["California"]] <- as_task_regr_st(
 # Income Task
 data(Income, package = "SpatialML")
 income_df <- as.data.frame(Income)
+income_df$Income01 <- scale(income_df$Income01)[, 1]
 
 task_list[["Income"]] <- as_task_regr_st(
   income_df,
@@ -69,6 +71,11 @@ task_list[["Income"]] <- as_task_regr_st(
   coordinate_names = c("X", "Y"),
   id = "Income"
 )
+```
+
+```{r check_data}
+
+quantile(california_dt$median_house_value)
 ```
 
 # Learners Configuration
@@ -110,10 +117,11 @@ learners <- list(
 To evaluate the performance, we run the benchmark locally using the future package for parallel processing.
 This allows us to execute the 5-fold cross-validation across all learners and tasks efficiently.
 
-```{r setup_benchmark, message = TRUE, warning = FALSE}
+```{r setup_benchmark, message = TRUE, warning = FALSE, results = 'hide'}
 library(future)
 
 cv <- mlr3::rsmp("cv", folds = 5)
+
 bench_grid <- mlr3::benchmark_grid(
   tasks = task_list, 
   learners = learners, 
@@ -123,12 +131,12 @@ bench_grid <- mlr3::benchmark_grid(
 if(require(future)) {
   plan("multisession", workers = 4)
 }
-bench_results <- suppressWarnings(
-  mlr3::benchmark(bench_grid, store_models = FALSE)
-)
+
+invisible(capture.output({
+  bench_results <- mlr3::benchmark(bench_grid, store_models = FALSE)
+}))
 
 scores_dt <- bench_results$score(mlr3::msr("regr.rmse"))
-rm(bench_results)
 ```
 
 # Results Visualization 
